@@ -41,7 +41,7 @@ using namespace std;
 iec104_class::iec104_class() {
   strncpy(slaveIP, "", 20);
 
-  Port = 2404;
+  //Port = 2404;
 
   msg_supervisory = true;
   seq_order_check = true;

@@ -31,102 +31,87 @@
 
 using namespace std;
 
-TLogMsg::TLogMsg()
-{
-    mMaxMsg = 1000;
-    mDoLog = true;
-    mRegTime = false;
-    mLevel = 0;
+TLogMsg::TLogMsg() {
+  mMaxMsg = 1000;
+  mDoLog = true;
+  mRegTime = false;
+  mLevel = 0;
 }
 
-void TLogMsg::setMaxMsg(unsigned int maxmsg)
-{
-    mMaxMsg = maxmsg;
+void TLogMsg::setMaxMsg(unsigned int maxmsg) {
+  mMaxMsg = maxmsg;
 }
 
-void TLogMsg::setLevel(unsigned int level)
-{
-    mLevel = level;
+void TLogMsg::setLevel(unsigned int level) {
+  mLevel = level;
 }
 
-void TLogMsg::activateLog()
-{
-    mDoLog = true;
+void TLogMsg::activateLog() {
+  mDoLog = true;
 }
 
-void TLogMsg::deactivateLog()
-{
-    mLstLog.clear(); // clean lists
-    mLstTime.clear();
-    mDoLog = false;
+void TLogMsg::deactivateLog() {
+  mLstLog.clear(); // clean lists
+  mLstTime.clear();
+  mDoLog = false;
 }
 
-void TLogMsg::doLogTime()
-{
-    mLstLog.clear(); // clean lists, sync
-    mLstTime.clear();
-    mRegTime = true;
+void TLogMsg::doLogTime() {
+  mLstLog.clear(); // clean lists, sync
+  mLstTime.clear();
+  mRegTime = true;
 }
 
-void TLogMsg::dontLogTime()
-{
-    mRegTime = false;
+void TLogMsg::dontLogTime() {
+  mRegTime = false;
 }
 
-bool TLogMsg::haveMsg()
-{
-    return !mLstLog.empty();
+bool TLogMsg::haveMsg() {
+  return !mLstLog.empty();
 }
 
-bool TLogMsg::isLogging()
-{
-    return mDoLog;
+bool TLogMsg::isLogging() {
+  return mDoLog;
 }
 
 // coloca a mensagem na fila
-void TLogMsg::pushMsg( const char * msg, unsigned int level )
-{
-    if ( mDoLog && ( mLstLog.size() < mMaxMsg ) && ( mLevel <= level ) ) {
-        mLstLog.push_back( msg );
-        if ( mRegTime ) { // coloca hora na fila, se for o caso
-            mLstTime.push_back( time( NULL ) );
-        }
+void TLogMsg::pushMsg(const char* msg, unsigned int level) {
+  if (mDoLog && (mLstLog.size() < mMaxMsg) && (mLevel <= level)) {
+    mLstLog.push_back(msg);
+    if (mRegTime) {   // coloca hora na fila, se for o caso
+      mLstTime.push_back(time(NULL));
     }
+  }
 }
 
-int TLogMsg::count()
-{
-    return mLstLog.size();
+int TLogMsg::count() {
+  return mLstLog.size();
 }
 
 // Tira mensagem da fila
-string TLogMsg::pullMsg()
-{
-    if ( mLstLog.empty() || !mDoLog )
-        return "";
+string TLogMsg::pullMsg() {
+  if (mLstLog.empty() || !mDoLog)
+    return "";
 
-    string s = mLstLog.front();   // pega a primeira da fila
-    mLstLog.pop_front();          // retira-a da fila
+  string s = mLstLog.front();   // pega a primeira da fila
+  mLstLog.pop_front();          // retira-a da fila
 
-    // se tem registro de hora, pega a hora e formata para exibir antes da mensagem
-    if (mRegTime){
-        char buffer [201];
-        static time_t hora_ant;
-        time_t hora = mLstTime.front();
-        mLstTime.pop_front();
-        if (hora != hora_ant)
-          {
-          struct tm * timeinfo;
-          timeinfo = localtime ( &hora );
-          // strftime ( buffer,200,"%d/%m %H:%M:%S ",timeinfo );
-          strftime ( buffer,200,"%H:%M:%S ",timeinfo );
-          s = buffer + s;
-          }
-        else
-          s = "         " + s;
-        hora_ant = hora;
-    }
+  // se tem registro de hora, pega a hora e formata para exibir antes da mensagem
+  if (mRegTime) {
+    char buffer [201];
+    time_t hora = mLstTime.front();
+    mLstTime.pop_front();
+    if (hora != hora_ant) {
+      struct tm* timeinfo;
+      timeinfo = localtime(&hora);
+      // strftime ( buffer,200,"%d/%m %H:%M:%S ",timeinfo );
+      strftime(buffer, 200, "%H:%M:%S ", timeinfo);
+      s = buffer + s;
+    } else
+      s = "         " + s;
+    hora_ant = hora;
+  }
 
-    return s;
+  return s;
 }
 

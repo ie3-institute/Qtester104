@@ -6,15 +6,18 @@ QT += network \
 TARGET = QTester104
 TEMPLATE = app
 SOURCES += main.cpp \
+    form.cpp \
     mainwindow.cpp \
     iec104_class.cpp \
     logmsg.cpp \
     qiec104.cpp
 HEADERS += mainwindow.h \
+    form.h \
     iec104_types.h \
     iec104_class.h \
     logmsg.h \
     qiec104.h
-FORMS += mainwindow.ui
+FORMS += mainwindow.ui \
+    form.ui
 OTHER_FILES += \
     qtester104.ini

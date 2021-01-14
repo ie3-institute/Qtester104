@@ -38,19 +38,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-using namespace std;
 
-#define QTESTER_VERSION "v2.1"
-#define QTESTER_COPYRIGHT "Copyright © 2010-2019 Ricardo Lastra Olsen"
-#define CURDIRINIFILENAME "/qtester104.ini"
-#define CONFDIRINIFILENAME "../conf/qtester104.ini"
+using namespace std;
 
 //-------------------------------------------------------------------------------------------------------------------------
 
-MainWindow::MainWindow(QWidget* parent)
+MainWindow::MainWindow(QWidget* parent, int clientNumber)
   : QMainWindow(parent), ui(new Ui::MainWindow) {
+  ClientNumber = clientNumber;
   I104M_Logar = 1;
   i104.mLog.deactivateLog();
+
 
   // look for the ini file in the application dir, if not found use the conf dir
   QString ininame = QCoreApplication::applicationDirPath() + CURDIRINIFILENAME;
@@ -67,16 +65,16 @@ MainWindow::MainWindow(QWidget* parent)
 
   i104.setPrimaryAddress(settings.value("IEC104/PRIMARY_ADDRESS", 1).toInt());
   i104.ForcePrimary = settings.value("I104M/FORCE_PRIMARY", 0).toInt();
-  i104.setSecondaryAddress(settings.value("RTU1/SECONDARY_ADDRESS", 1).toInt());
-  i104.SendCommands = settings.value("RTU1/ALLOW_COMMANDS", 0).toInt();
+  i104.setSecondaryAddress(settings.value(QString("RTU%0/SECONDARY_ADDRESS").arg(ClientNumber + 1), 1).toInt());
+  i104.SendCommands = settings.value(QString("RTU%0/ALLOW_COMMANDS").arg(ClientNumber + 1), 0).toInt();
 
   QString IPEscravo;
-  IPEscravo = settings.value("RTU1/IP_ADDRESS_BACKUP", "").toString();
+  IPEscravo = settings.value(QString("RTU%0/IP_ADDRESS_BACKUP").arg(ClientNumber + 1), "").toString();
   i104.setSecondaryIP_backup(const_cast<char*>(IPEscravo.toStdString().c_str()));
-  IPEscravo = settings.value("RTU1/IP_ADDRESS", "").toString();
+  IPEscravo = settings.value(QString("RTU%0/IP_ADDRESS").arg(ClientNumber + 1), "").toString();
   i104.setSecondaryIP(const_cast<char*>(IPEscravo.toStdString().c_str()));
-  i104.setPortTCP(settings.value("RTU1/TCP_PORT", i104.getPortTCP()).toUInt());
-  i104.setGIPeriod(settings.value("RTU1/GI_PERIOD", 330).toUInt());
+  i104.setPortTCP(settings.value(QString("RTU%0/TCP_PORT").arg(ClientNumber + 1), i104.getPortTCP()).toUInt());
+  i104.setGIPeriod(settings.value(QString("RTU%0/GI_PERIOD").arg(ClientNumber + 1), 330).toUInt());
 
   // this is for using with the OSHMI HMI in a dual architecture
   QSettings settings_oshmi("../conf/hmi.ini", QSettings::IniFormat);
@@ -90,7 +88,7 @@ MainWindow::MainWindow(QWidget* parent)
   Hide = settings_oshmi.value("RUN/HIDE", "").toInt();
 
   this->setWindowTitle(tr("QTester104 IEC60870-5-104"));
-
+  ui->cbPointMap->setChecked(true);     // SetChecked for all new Windows
   QIntValidator* validator = new QIntValidator(0, 65535, this);
   ui->leLinkAddress->setValidator(validator);
   QIntValidator* validator1 = new QIntValidator(0, 65535, this);
@@ -108,7 +106,7 @@ MainWindow::MainWindow(QWidget* parent)
 
   QString qs;
   QTextStream(&qs) << i104.getPortTCP();
-  ui->lePort->setText(qs);
+  ui->lePort->setText(qs);      // Set Port_Number
   ui->leIPRemoto->setText(IPEscravo);
   qs = "";
   QTextStream(&qs) << i104.getSecondaryAddress();
@@ -141,7 +139,7 @@ MainWindow::MainWindow(QWidget* parent)
   ui->twPontos->sortByColumn(0, Qt::AscendingOrder);
 
   if (IPEscravo != "")
-    on_pbConnect_clicked();
+  on_pbConnect_clicked();
 
   QStringList colunas;
   colunas << "Address" << "CA" << "Value" << "ASDU" << "Cause" << "Flags" << "Count" << "TimeTag";
@@ -202,6 +200,7 @@ void MainWindow::on_pbConnect_clicked() {
     ui->leIPRemoto->setEnabled(false);
     ui->leLinkAddress->setEnabled(false);
     ui->leMasterAddress->setEnabled(false);
+    ui->cbPointMap->setChecked(true);       // Set Point Mapping always on true
 
     ui->pbConnect->setText("Give up...");
     ui->lbStatus->setText("<font color='green'>TRYING TO CONNECT!</font>");
@@ -603,10 +602,6 @@ void MainWindow::slot_dataIndication(iec_obj* obj, unsigned numpoints) {
 }
 
 void MainWindow::slot_timer_logmsg() {
-  static int count = 0;
-  static int rowant = 0;
-  static const int logBufSize = 30000;
-  static int cntLogMsgs = 0; // index for circular buffer of log messages
 
   if (Hide)
     if (this->isVisible())
@@ -712,7 +707,7 @@ void MainWindow::slot_commandActRespIndication(iec_obj* obj) {
   char buf[1000];
   char buftt[1000];
   int rw = -1;
-  bool inserted = false;
+  // bool inserted = false;
   QTableWidgetItem* pitem;
   static const char* pnmsg[] = { "pos ", "neg "};
   static const char* selmsg[] = { "exe ", "sel "};
@@ -721,7 +716,7 @@ void MainWindow::slot_commandActRespIndication(iec_obj* obj) {
   static const char* qumsg[] = { "uns ", "shp ", "lop ", "per ", "res " };
   static const char* rcsmsg[] = { "na0 ", "dec ", "inc ", "na3 " };
   static const char* kpamsg[] = { "unu ", "thr ", "fil ", "lli ", "hli ", "res " };
-  static const char* qpamsg[] = { "unu ", "gen ", "obj ", "trm ", "res " };
+  // static const char* qpamsg[] = { "unu ", "gen ", "obj ", "trm ", "res " };
 
   if (obj->address == 0)
     return;
@@ -782,7 +777,7 @@ void MainWindow::slot_commandActRespIndication(iec_obj* obj) {
       newItem->setFlags(Qt::ItemIsSelectable);
       mapPtItem_ColTimeTag[std::make_pair(obj->ca, obj->address)] = newItem;
 
-      inserted = true;
+      // inserted = true;
     }
 
     sprintf(buf, "%9.3f", double(obj->value));
@@ -1007,7 +1002,7 @@ void MainWindow::on_pbCopyVals_clicked() {
 }
 
 void MainWindow::I104M_processPoints(iec_obj* obj, unsigned numpoints) {
-  static t_msgsupsq msg;
+  t_msgsupsq msg;
 
   switch (obj->type) {
     case iec104_class::M_DP_TB_1: { // double state with time tag
@@ -1276,4 +1271,11 @@ void MainWindow::fmtCP56Time(char* buf, cp56time2a* timetag) {
           timetag->msec / 1000,
           timetag->msec % 1000,
           timetag->iv ? "iv" : "ok");
+}
+
+void MainWindow::get_input_Port_and_input_IP(int input_port,  QString IPAdr)
+{
+    ui->lePort->setText(QString::number(input_port));
+    ui->leIPRemoto->setText(IPAdr);
+    on_pbConnect_clicked();
 }

@@ -58,7 +58,6 @@ signals:
     void signal_tcp_connect();
     void signal_tcp_disconnect();
     void signal_commandActRespIndication(iec_obj *obj);
-
 public slots:
     void slot_tcpdisconnect(); // tcp disconnect for iec104
 

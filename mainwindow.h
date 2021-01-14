@@ -42,6 +42,11 @@
 #include "iec104_class.h"
 #include "qiec104.h"
 
+#define QTESTER_VERSION "v2.2"
+#define QTESTER_COPYRIGHT "Copyright © 2010-2020 Ricardo Lastra Olsen"
+#define CURDIRINIFILENAME "/qtester104.ini"
+#define CONFDIRINIFILENAME "../conf/qtester104.ini"
+
 namespace Ui {
 class MainWindow;
 }
@@ -53,8 +58,10 @@ class MainWindow : public QMainWindow {
   void closeEvent(QCloseEvent* event);
 
  public:
-  MainWindow(QWidget* parent = nullptr);
+  MainWindow(QWidget* parent = nullptr, int clientNumber = 0);
   ~MainWindow();
+  void get_input_Port_and_input_IP(int input_port, QString IPAdr);
+
 
  private slots:
   void on_cbLog_clicked(); // Check box for log messages changed
@@ -84,6 +91,11 @@ class MainWindow : public QMainWindow {
   std::map <std::pair<int, int>, QTableWidgetItem*> mapPtItem_ColCount;
   std::map <std::pair<int, int>, QTableWidgetItem*> mapPtItem_ColTimeTag;
 
+  int count = 0;
+  int rowant = 0;
+  const int logBufSize = 30000;
+  int cntLogMsgs = 0; // index for circular buffer of log messages
+
   Ui::MainWindow* ui;
   QTimer* tmLogMsg; // timer to show log messages
   QIec104 i104;
@@ -91,6 +103,8 @@ class MainWindow : public QMainWindow {
   unsigned LastCommandAddress;
   int SendCommands;             // 1 = allow sending commands, 0 = don't send commands
   int Hide;
+  int ClientNumber = 0;
+  //int input_port;
 
   // I104M Related
   void I104M_Loga(QString str, int id = 0); // I104M: log messages
@@ -98,10 +112,10 @@ class MainWindow : public QMainWindow {
   inline bool I104M_HaveDualHost() { return (I104M_host_dual != QHostAddress("0.0.0.0")); }
   QHostAddress I104M_host; // IP address from OSHMI main machine
   QHostAddress I104M_host_dual; // OSHMI dual host address (the other machine)
-  static const int I104M_porta = 8099; // UDP port to send data to OSHMI
-  static const int I104M_porta_escuta = 8098; // udp port to receive commands from OSHMI
-  static const int I104M_CntToBePrimary = 3; // counts necessary to be primary when not receiving keepalive messages
-  static const int I104M_seconds_kamsg = 7; // period of keepalive messages
+  const int I104M_porta = 8099; // UDP port to send data to OSHMI
+  const int I104M_porta_escuta = 8098; // udp port to receive commands from OSHMI
+  const int I104M_CntToBePrimary = 3; // counts necessary to be primary when not receiving keepalive messages
+  const int I104M_seconds_kamsg = 7; // period of keepalive messages
   int I104M_CntDnToBePrimary; // countdown to be primary when not receiving keepalive messages
   int I104M_Logar; // controls log of I104M messages
   bool isPrimary; // primary or secondary redundant mode

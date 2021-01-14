@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>465</height>
+    <width>1052</width>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -427,8 +427,8 @@ If empty will use remote link address.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>968</width>
-     <height>21</height>
+     <width>1052</width>
+     <height>20</height>
     </rect>
    </property>
   </widget>

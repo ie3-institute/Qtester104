@@ -29,12 +29,18 @@
 
 #include <QtWidgets/QApplication>
 #include "mainwindow.h"
+#include"form.h"
+int main(int argc, char* argv[]) {
+  QApplication a(argc, argv);
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow w;
+  //MainWindow w;
+  //w.show();
 
-    w.show();
-    return a.exec();
+
+
+  Form *Window = new Form;
+  Window->show();
+
+
+  return a.exec();
 }

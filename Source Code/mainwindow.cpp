@@ -138,8 +138,8 @@ MainWindow::MainWindow(QWidget* parent, int clientNumber)
   ui->twPontos->setColumnCount(8);
   ui->twPontos->sortByColumn(0, Qt::AscendingOrder);
 
-  if (IPEscravo != "")
-  on_pbConnect_clicked();
+  // if (IPEscravo != "")
+  // on_pbConnect_clicked();
 
   QStringList colunas;
   colunas << "Address" << "CA" << "Value" << "ASDU" << "Cause" << "Flags" << "Count" << "TimeTag";
@@ -1277,5 +1277,5 @@ void MainWindow::get_input_Port_and_input_IP(int input_port,  QString IPAdr)
 {
     ui->lePort->setText(QString::number(input_port));
     ui->leIPRemoto->setText(IPAdr);
-    on_pbConnect_clicked();
+    // on_pbConnect_clicked();
 }

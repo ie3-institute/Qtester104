@@ -58,7 +58,7 @@ ALLOW_COMMANDS=1<br></p>
 + Automatic point mapping.  
 + Closable tabs(Clients).
 
-![""](Images\Qtester104.png)
+![](Images/Qtester104.jpg "Qtester104")
 
 
 ## Built and Compile:
